@@ -116,10 +116,10 @@ Then insert image relative path as image link to the current point."
           (emage--image-to-clipboard file))
       (message "Point is not at an image."))))
 
-(defun emage--image-to-clipboard (img-path)
+(defun emage--image-to-clipboard (image-path)
   (cond
    ((string= system-type "windows-nt")
-    (shell-command (concat "powershell -command \"Add-Type -AssemblyName System.Drawing; Add-Type -AssemblyName System.Windows.Forms; $file = get-item('" img-path "'); $img = [System.Drawing.Image]::Fromfile($file); [System.Windows.Forms.Clipboard]::SetImage($img); Write-Output 'image saved to clipboard';\"")))))
+    (shell-command (concat "powershell -command \"Add-Type -AssemblyName System.Drawing; Add-Type -AssemblyName System.Windows.Forms; $file = get-item('" image-path "'); $img = [System.Drawing.Image]::Fromfile($file); [System.Windows.Forms.Clipboard]::SetImage($img); Write-Output 'image saved to clipboard';\"")))))
 
 
 (provide 'emage)

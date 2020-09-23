@@ -1,0 +1,21 @@
+* emage.el
+
+This package is used to enhance image insertion and yank on Emacs.
+
+** Usage
+
+Clone or download this repository (path of the folder is the =<path-to-emage>= used below).
+
+In your =~/.emacs=, add the following lines:
+
+#+BEGIN_SRC elisp
+(add-to-list 'load-path "<path-to-emage>") ; add emage to your load-path
+
+(require 'emage)
+
+(global-set-key (kbd "C-c i i") 'emage-insert-clipboard-image-to-point)   ;; image insert
+(global-set-key (kbd "C-c i y") 'emage-yank-image-at-point-to-clipboard)  ;; image yank
+#+END_SRC
+
+Global set key is not required, you can call these two commands with =M-x=.
+

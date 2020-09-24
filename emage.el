@@ -4,8 +4,8 @@
 ;; URL: https://github.com/Ynjxsjmh/emage
 ;; Description: Save clipboard image to disk file, and insert file link to current point.
 ;; Created: <2020-09-23 Wed 18:11>
-;; Version: 1.0
-;; Last-Updated: <2020-09-23 Wed 21:35>
+;; Version: 2.0
+;; Last-Updated: <2020-09-24 Thu 09:09>
 ;;           By: Ynjxsjmh
 
 ;; Keywords: image, yank, paste

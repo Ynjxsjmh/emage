@@ -55,12 +55,35 @@ See `emage--image-dir' for more info."
           (string :tag "Directory"))
   :group 'emage)
 
+(defcustom emage-image-name-generator nil
+  "If set, image name generator strategy will be replaced by user customization.
+See `emage--image-name-generator' for more info."
+  :type 'function
+  :group 'emage)
+
+(defcustom emage-image-name-generator-description nil
+  "If set, image name generator strategy description will be replaced by user customization.
+See `emage--image-name-generator-description' for more info."
+  :type 'string
+  :group 'emage)
+
 (defun emage--image-dir ()
   "Return the directory path for image saving of current buffer.
 It's `emage-image-dir', unless it's nil.  Then it's current directory."
   (if emage-image-dir
       (concatenate 'string "./" emage-image-dir)
     "."))
+
+(defun emage--default-image-name-generator ()
+  (make-temp-name (concat (format-time-string "%Y%m%d_%H%M%S_")) ))
+
+(defun emage--image-name-generator ()
+  (if emage-image-name-generator
+      (funcall emage-image-name-generator)
+    (funcall #'emage--default-image-name-generator)))
+
+(defun emage--image-name-generator-description ()
+  (or emage-image-name-generator-description "default current timestamp with random string"))
 
 
 (defun emage-insert-clipboard-image-to-point ()
@@ -72,9 +95,9 @@ Then insert image relative path as image link to the current point."
     (make-directory (emage--image-dir) :parents))
 
   (let* (
-         (input-image-name (read-string "Input image name (default current timestamp with random string): "))
+         (input-image-name (read-string (format "Input image name (%s): " (emage--image-name-generator-description)) ))
          (image-name (if (string= "" input-image-name)
-                         (concat (make-temp-name (concat (format-time-string "%Y%m%d_%H%M%S_")) ) ".png")
+                         (concat (emage--image-name-generator) ".png")
                        (concat input-image-name ".png")))
 
          (relative-image-path (concatenate 'string (emage--image-dir) "/" image-name))

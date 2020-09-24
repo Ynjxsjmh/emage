@@ -54,6 +54,7 @@ See `emage--image-dir' for more info."
           (const :tag "Default" nil)
           (string :tag "Directory"))
   :group 'emage)
+(make-variable-buffer-local 'emage-image-dir)
 
 (defcustom emage-image-name-generator nil
   "If set, image name generator strategy will be replaced by user customization.

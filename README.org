@@ -19,3 +19,29 @@ In your =~/.emacs=, add the following lines:
 
 Global set key is not required, you can call these two commands with =M-x=.
 
+** Customization
+
+To set default image saving director:
+
+#+BEGIN_SRC elisp
+(setq emage-image-dir "images")
+#+END_SRC
+
+Two ways to use your own image name generator:
+
+#+BEGIN_SRC elisp
+(setq emage-image-name-generator #'(lambda () (format-time-string "%Y%m%d_%H%M%S")))
+#+END_SRC
+
+#+BEGIN_SRC elisp
+(defun emage-user-image-name-generator ()
+  (format-time-string "%Y%m%d_%H%M%S"))
+
+(setq emage-image-name-generator #'emage-user-image-name-generator)
+#+END_SRC
+
+If you change =emage-user-image-name-generator=, I advise you to make a description of how it generates filename and pass that description to =emage-image-name-generator-description=.
+
+#+BEGIN_SRC elisp
+(setq emage-image-name-generator-description "default current timestamp")
+#+END_SRC

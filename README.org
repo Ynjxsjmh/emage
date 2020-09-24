@@ -21,10 +21,20 @@ Global set key is not required, you can call these two commands with =M-x=.
 
 ** Customization
 
-To set default image saving director:
+To set default image saving directory for all buffers:
 
 #+BEGIN_SRC elisp
-(setq emage-image-dir "images")
+(setq-default emage-image-dir "images")
+#+END_SRC
+
+You can also use hook to change =emage-image-dir= when entering specific mode. If you want to change the default directory to =images= and make =emage-image-dir= to be filename without extension in org mode, you can do as following:
+
+#+BEGIN_SRC elisp
+(setq-default emage-image-dir "images")
+
+(add-hook 'org-mode-hook
+          (lambda ()
+            (setq-local emage-image-dir (file-name-sans-extension (file-name-nondirectory (buffer-file-name))))))
 #+END_SRC
 
 Two ways to use your own image name generator:

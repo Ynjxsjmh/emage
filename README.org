@@ -50,7 +50,7 @@ Two ways to use your own image name generator:
 (setq emage-image-name-generator #'emage-user-image-name-generator)
 #+END_SRC
 
-If you change =emage-user-image-name-generator=, I advise you to make a description of how it generates filename and pass that description to =emage-image-name-generator-description=.
+If you change =emage-user-image-name-generator=, I advise you to make a description of how it generates filename and pass that description to =emage-image-name-generator-description= which is used as image name generating hint in minibuffer.
 
 #+BEGIN_SRC elisp
 (setq emage-image-name-generator-description "default current timestamp")

@@ -127,7 +127,7 @@ Then insert image relative path as image link to the current point."
    ((string= system-type "darwin")
     (call-process-shell-command "convert" nil nil nil nil (concat "\"" image-path "\" -resize  \"50%\"" ) (concat "\"" image-path "\"" )))
    ((string= system-type "gnu/linux")
-    (call-process "import" nil nil nil image-path))
+    (call-process-shell-command (concat "xclip -selection clipboard -t image/png -o > " image-path)))
    ((string= system-type "windows-nt")
     (shell-command (concat "powershell -command \"Add-Type -AssemblyName System.Windows.Forms;if ($([System.Windows.Forms.Clipboard]::ContainsImage())) {$image = [System.Windows.Forms.Clipboard]::GetImage();[System.Drawing.Bitmap]$image.Save('" image-path "',[System.Drawing.Imaging.ImageFormat]::Png); Write-Output 'clipboard content saved as file'} else {Write-Output 'clipboard does not contain image data'}\"")))))
 

@@ -27,7 +27,7 @@ To set default image saving directory for all buffers:
 (setq-default emage-image-dir "images")
 #+END_SRC
 
-You can also use hook to change =emage-image-dir= when entering specific mode. If you want to change the default directory to =images= and make =emage-image-dir= to be filename without extension in org mode, you can do as following:
+You can also use hook to change =emage-image-dir= when entering a specific mode. If you want to change the default directory to =images= and make =emage-image-dir= to be filename without extension in org mode, you can do as following:
 
 #+BEGIN_SRC elisp
 (setq-default emage-image-dir "images")

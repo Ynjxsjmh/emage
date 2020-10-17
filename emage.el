@@ -42,6 +42,8 @@
 
 ;;; Code:
 
+(require 'seq)
+
 
 (defgroup emage nil
   "Image yank and insert for Emacs."
@@ -65,6 +67,11 @@ See `emage--image-name-generator' for more info."
 (defcustom emage-image-name-generator-description nil
   "If set, image name generator strategy description will be replaced by user customization.
 See `emage--image-name-generator-description' for more info."
+  :type 'string
+  :group 'emage)
+
+(defcustom emage-buffer "*emage*"
+  "The buffer name of search result."
   :type 'string
   :group 'emage)
 
@@ -151,6 +158,63 @@ Then insert image relative path as image link to the current point."
    ((string= system-type "windows-nt")
     (shell-command (concat "powershell -command \"Add-Type -AssemblyName System.Drawing; Add-Type -AssemblyName System.Windows.Forms; $file = get-item('" image-path "'); $img = [System.Drawing.Image]::Fromfile($file); [System.Windows.Forms.Clipboard]::SetImage($img); Write-Output 'image saved to clipboard';\"")))))
 
+(defun emage--view-image (image-path)
+  (let ((image-name (concat "*" (file-name-nondirectory image-path) "*")))
+
+    (if (get-buffer image-name)
+        (with-current-buffer image-name
+          (let ((inhibit-read-only t))
+            ;; Erase buffer content.
+            (read-only-mode -1)
+            (erase-buffer)))
+      (generate-new-buffer image-name))
+
+    (with-current-buffer image-name
+      (insert-image (create-image image-path)))
+
+    (pop-to-buffer image-name)))
+
+(defun emage--delete-image (image-path)
+  (move-file-to-trash image-path)
+  (message "File moved to trash")
+  )
+
+(defun emage-list-unreferenced-images-by-current-file ()
+  (interactive)
+  ;; List images not appeared in current file
+  (let* ((buffer-folder (file-name-directory buffer-file-name))
+         (buffer-string (buffer-substring-no-properties (point-min) (point-max)))
+         (image-names (mapcar 'file-name-nondirectory (directory-files-recursively (emage--image-dir) "")))
+         (unreferenced-image-names (seq-filter (lambda (image-name) (not (string-match-p (regexp-quote image-name) buffer-string))) image-names)))
+
+    ;; Erase or create search result.
+    (if (get-buffer emage-buffer)
+        (with-current-buffer emage-buffer
+          (let ((inhibit-read-only t))
+            ;; Erase buffer content.
+            (read-only-mode -1)
+            (erase-buffer)))
+      (generate-new-buffer emage-buffer))
+
+    (with-current-buffer emage-buffer
+      (mapcar (lambda (image-name)
+                (let ((image-path (concat (file-name-as-directory buffer-folder) (file-name-as-directory (emage--image-dir)) image-name)))
+                  (insert-button "VIEW"
+                                 'follow-link t
+                                 'action (lambda (_arg) (emage--view-image image-path))
+                                 'help-echo "View image")
+                  (insert "   ")
+                  (insert-button "DEL"
+                                 'follow-link t
+                                 'action (lambda (_arg) (emage--delete-image image-path))
+                                 'help-echo "Delete image")
+                  (insert "   ")
+                  (insert (concat (file-name-as-directory (emage--image-dir)) image-name))
+                  (insert "\n"))) unreferenced-image-names))
+
+    ;; Pop search buffer.
+    (pop-to-buffer emage-buffer)
+    (goto-char (point-min))))
 
 (provide 'emage)
 ;;; emage.el ends here

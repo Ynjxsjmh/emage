@@ -148,6 +148,15 @@ Then insert image relative path as image link to the current point."
           (emage--image-to-clipboard file))
       (message "Point is not at an image."))))
 
+(defun emage-yank-image-at-line-to-clipboard ()
+  "Yank image link at line as image to clipboard as image/png."
+  (interactive)
+  (let ((line-str (buffer-substring-no-properties (line-beginning-position) (line-end-position))))
+    (if (string-match "\\./.+?\\.png" line-str)
+        (let ((image-path (match-string 0 line-str)))
+          (emage--image-to-clipboard image-path))
+      (message "There is no image link at line."))))
+
 (defun emage--image-to-clipboard (image-path)
   (cond
    ((string= system-type "gnu/linux")

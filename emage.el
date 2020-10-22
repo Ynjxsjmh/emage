@@ -186,7 +186,8 @@ Then insert image relative path as image link to the current point."
          (buffer-folder (file-name-directory buffer-file-name))
          (buffer-string (buffer-substring-no-properties (point-min) (point-max)))
          (image-names (mapcar 'file-name-nondirectory (directory-files-recursively (emage--image-dir) "")))
-         (unreferenced-image-names (seq-filter (lambda (image-name) (not (string-match-p (regexp-quote image-name) buffer-string))) image-names)))
+         (unreferenced-image-names (seq-filter (lambda (image-name) (not (string-match-p (regexp-quote image-name) buffer-string))) image-names))
+         (unreferenced-image-paths (mapcar (lambda (image-name) (concat (file-name-as-directory buffer-folder) (file-name-as-directory buffer-emage-image-dir) image-name)) unreferenced-image-names)))
 
     ;; Erase or create search result.
     (if (get-buffer emage-buffer)
@@ -198,8 +199,7 @@ Then insert image relative path as image link to the current point."
       (generate-new-buffer emage-buffer))
 
     (with-current-buffer emage-buffer
-      (mapcar (lambda (image-name)
-                (let ((image-path (concat (file-name-as-directory buffer-folder) (file-name-as-directory buffer-emage-image-dir) image-name)))
+      (mapcar (lambda (image-path)
                   (insert-button "VIEW"
                                  'follow-link t
                                  'action (lambda (_arg) (emage--view-image image-path))
@@ -210,8 +210,8 @@ Then insert image relative path as image link to the current point."
                                  'action (lambda (_arg) (emage--delete-image image-path))
                                  'help-echo "Delete image")
                   (insert "   ")
-                  (insert (concat (file-name-as-directory buffer-emage-image-dir) image-name))
-                  (insert "\n"))) unreferenced-image-names))
+                  (insert (concat (file-name-as-directory buffer-emage-image-dir) (file-name-nondirectory image-path)))
+                  (insert "\n")) unreferenced-image-paths))
 
     ;; Pop search buffer.
     (pop-to-buffer emage-buffer)

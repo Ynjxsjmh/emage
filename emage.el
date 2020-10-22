@@ -182,7 +182,8 @@ Then insert image relative path as image link to the current point."
 (defun emage-list-unreferenced-images-by-current-file ()
   (interactive)
   ;; List images not appeared in current file
-  (let* ((buffer-folder (file-name-directory buffer-file-name))
+  (let* ((buffer-emage-image-dir (emage--image-dir))
+         (buffer-folder (file-name-directory buffer-file-name))
          (buffer-string (buffer-substring-no-properties (point-min) (point-max)))
          (image-names (mapcar 'file-name-nondirectory (directory-files-recursively (emage--image-dir) "")))
          (unreferenced-image-names (seq-filter (lambda (image-name) (not (string-match-p (regexp-quote image-name) buffer-string))) image-names)))
@@ -198,7 +199,7 @@ Then insert image relative path as image link to the current point."
 
     (with-current-buffer emage-buffer
       (mapcar (lambda (image-name)
-                (let ((image-path (concat (file-name-as-directory buffer-folder) (file-name-as-directory (emage--image-dir)) image-name)))
+                (let ((image-path (concat (file-name-as-directory buffer-folder) (file-name-as-directory buffer-emage-image-dir) image-name)))
                   (insert-button "VIEW"
                                  'follow-link t
                                  'action (lambda (_arg) (emage--view-image image-path))
@@ -209,7 +210,7 @@ Then insert image relative path as image link to the current point."
                                  'action (lambda (_arg) (emage--delete-image image-path))
                                  'help-echo "Delete image")
                   (insert "   ")
-                  (insert (concat (file-name-as-directory (emage--image-dir)) image-name))
+                  (insert (concat (file-name-as-directory buffer-emage-image-dir) image-name))
                   (insert "\n"))) unreferenced-image-names))
 
     ;; Pop search buffer.

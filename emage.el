@@ -165,7 +165,8 @@ Then insert image relative path as image link to the current point."
      "-i" "-selection" "clipboard" "-t" "image/png"
      "-quiet" image-path))
    ((string= system-type "windows-nt")
-    (shell-command (concat "powershell -command \"Add-Type -AssemblyName System.Drawing; Add-Type -AssemblyName System.Windows.Forms; $file = get-item('" image-path "'); $img = [System.Drawing.Image]::Fromfile($file); [System.Windows.Forms.Clipboard]::SetImage($img); Write-Output 'image saved to clipboard';\"")))))
+    (shell-command (concat "powershell -command \"Add-Type -AssemblyName System.Drawing; Add-Type -AssemblyName System.Windows.Forms; $file = get-item('" image-path "'); $img = [System.Drawing.Image]::Fromfile($file); [System.Windows.Forms.Clipboard]::SetImage($img); Write-Output 'image saved to clipboard';\""))))
+  (message "Image %S yanked to clipboard." (file-name-nondirectory image-path)))
 
 (defun emage--view-image (image-path)
   (let ((image-name (concat "*" (file-name-nondirectory image-path) "*")))

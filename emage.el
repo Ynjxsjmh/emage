@@ -189,33 +189,36 @@ Then insert image relative path as image link to the current point."
          (unreferenced-image-names (seq-filter (lambda (image-name) (not (string-match-p (regexp-quote image-name) buffer-string))) image-names))
          (unreferenced-image-paths (mapcar (lambda (image-name) (concat (file-name-as-directory buffer-folder) (file-name-as-directory buffer-emage-image-dir) image-name)) unreferenced-image-names)))
 
-    ;; Erase or create search result.
-    (if (get-buffer emage-buffer)
-        (with-current-buffer emage-buffer
-          (let ((inhibit-read-only t))
-            ;; Erase buffer content.
-            (read-only-mode -1)
-            (erase-buffer)))
-      (generate-new-buffer emage-buffer))
-
-    (with-current-buffer emage-buffer
-      (mapcar (lambda (image-path)
-                  (insert-button "VIEW"
-                                 'follow-link t
-                                 'action (lambda (_arg) (emage--view-image image-path))
-                                 'help-echo "View image")
-                  (insert "   ")
-                  (insert-button "DEL"
-                                 'follow-link t
-                                 'action (lambda (_arg) (emage--delete-image image-path))
-                                 'help-echo "Delete image")
-                  (insert "   ")
-                  (insert (concat (file-name-as-directory buffer-emage-image-dir) (file-name-nondirectory image-path)))
-                  (insert "\n")) unreferenced-image-paths))
+    (emage--fill-unreferenced-images-to-buffer unreferenced-image-paths buffer-emage-image-dir)
 
     ;; Pop search buffer.
     (pop-to-buffer emage-buffer)
     (goto-char (point-min))))
+
+(defun emage--fill-unreferenced-images-to-buffer (unreferenced-image-paths buffer-emage-image-dir)
+  ;; Erase or create search result.
+  (if (get-buffer emage-buffer)
+      (with-current-buffer emage-buffer
+        (let ((inhibit-read-only t))
+          ;; Erase buffer content.
+          (read-only-mode -1)
+          (erase-buffer)))
+    (generate-new-buffer emage-buffer))
+
+  (with-current-buffer emage-buffer
+    (mapcar (lambda (image-path)
+              (insert-button "VIEW"
+                             'follow-link t
+                             'action (lambda (_arg) (emage--view-image image-path))
+                             'help-echo "View image")
+              (insert "   ")
+              (insert-button "DEL"
+                             'follow-link t
+                             'action (lambda (_arg) (emage--delete-image image-path))
+                             'help-echo "Delete image")
+              (insert "   ")
+              (insert (concat (file-name-as-directory buffer-emage-image-dir) (file-name-nondirectory image-path)))
+              (insert "\n")) unreferenced-image-paths)))
 
 (provide 'emage)
 ;;; emage.el ends here

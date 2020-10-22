@@ -176,7 +176,7 @@ Then insert image relative path as image link to the current point."
 
 (defun emage--delete-image (image-path)
   (move-file-to-trash image-path)
-  (message "File moved to trash")
+  (message "File %S moved to trash" (file-name-nondirectory image-path))
   )
 
 (defun emage-list-unreferenced-images-by-current-file ()

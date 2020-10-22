@@ -214,7 +214,9 @@ Then insert image relative path as image link to the current point."
               (insert "   ")
               (insert-button "DEL"
                              'follow-link t
-                             'action (lambda (_arg) (emage--delete-image image-path))
+                             'action (lambda (_arg)
+                                       (emage--delete-image image-path)
+                                       (emage-fill-unreferenced-images-to-buffer (seq-filter (lambda (unreferenced-image-path) (not (string-equal unreferenced-image-path image-path))) unreferenced-image-paths) buffer-emage-image-dir))
                              'help-echo "Delete image")
               (insert "   ")
               (insert (concat (file-name-as-directory buffer-emage-image-dir) (file-name-nondirectory image-path)))

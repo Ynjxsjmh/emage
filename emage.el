@@ -102,18 +102,21 @@ Then insert image relative path as image link to the current point."
   (unless (file-directory-p (emage--image-dir))
     (make-directory (emage--image-dir) :parents))
 
-  (let* (
-         (input-image-name (read-string (format "Input image name (%s): " (emage--image-name-generator-description)) ))
-         (image-name (if (string= "" input-image-name)
-                         (concat (emage--image-name-generator) ".png")
-                       (concat input-image-name ".png")))
+  (let* ((temp-image-name (emage--image-name-generator))
+         (relative-temp-image-path (concatenate 'string (emage--image-dir) "/" temp-image-name)))
 
-         (relative-image-path (concatenate 'string (emage--image-dir) "/" image-name))
-         (image-alt-text (read-string "Input image alt text (default empty): "))
-         )
+    (emage--image-to-file-system relative-temp-image-path)
 
-    (emage--image-to-file-system relative-image-path)
-    (insert (emage--insert-image-path-as-link relative-image-path image-alt-text))))
+    (let* ((input-image-name (read-string (format "Input image name (%s): " (emage--image-name-generator-description)) ))
+           (image-name (if (string= "" input-image-name)
+                           (concat temp-image-name ".png")
+                         (concat input-image-name ".png")))
+
+           (relative-image-path (concatenate 'string (emage--image-dir) "/" image-name))
+           (image-alt-text (read-string "Input image alt text (default empty): ")))
+
+      (rename-file relative-temp-image-path relative-image-path)
+      (insert (emage--insert-image-path-as-link relative-image-path image-alt-text)))))
 
 (defun emage--insert-image-path-as-link (image-path image-alt-text)
   (cond

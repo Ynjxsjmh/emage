@@ -70,6 +70,11 @@ See `emage--image-name-generator-description' for more info."
   :type 'string
   :group 'emage)
 
+(defcustom emage-image-extension "jpg"
+  "Image extension saved to file system."
+  :type 'string
+  :group 'emage)
+
 (defcustom emage-buffer "*emage*"
   "The buffer name of search result."
   :type 'string
@@ -103,14 +108,18 @@ Then insert image relative path as image link to the current point."
     (make-directory (emage--image-dir) :parents))
 
   (let* ((temp-image-name (emage--image-name-generator))
-         (relative-temp-image-path (concatenate 'string (emage--image-dir) "/" temp-image-name)))
+         (input-image-extension (read-string (format "Input image extension (default %s):" emage-image-extension)))
+         (image-extension (if (string= "" input-image-extension)
+                              emage-image-extension
+                            input-image-extension))
+         (relative-temp-image-path (concat (emage--image-dir) "/" temp-image-name "." image-extension)))
 
     (emage--image-to-file-system relative-temp-image-path)
 
     (let* ((input-image-name (read-string (format "Input image name (%s): " (emage--image-name-generator-description)) ))
            (image-name (if (string= "" input-image-name)
-                           (concat temp-image-name ".png")
-                         (concat input-image-name ".png")))
+                           (concat temp-image-name "." image-extension)
+                         (concat input-image-name "." image-extension)))
 
            (relative-image-path (concatenate 'string (emage--image-dir) "/" image-name))
            (image-alt-text (read-string "Input image alt text (default empty): ")))
@@ -133,13 +142,33 @@ Then insert image relative path as image link to the current point."
           (format "%s: %s" image-alt-text image-path))))))
 
 (defun emage--image-to-file-system (image-path)
-  (cond
-   ((string= system-type "darwin")
-    (call-process-shell-command "convert" nil nil nil nil (concat "\"" image-path "\" -resize  \"50%\"" ) (concat "\"" image-path "\"" )))
-   ((string= system-type "gnu/linux")
-    (call-process-shell-command (concat "xclip -selection clipboard -t image/png -o > " image-path)))
-   ((string= system-type "windows-nt")
-    (shell-command (concat "powershell -command \"Add-Type -AssemblyName System.Windows.Forms;if ($([System.Windows.Forms.Clipboard]::ContainsImage())) {$image = [System.Windows.Forms.Clipboard]::GetImage();[System.Drawing.Bitmap]$image.Save('" image-path "',[System.Drawing.Imaging.ImageFormat]::Png); Write-Output 'clipboard content saved as file'} else {Write-Output 'clipboard does not contain image data'}\"")))))
+  (let* ((extension (file-name-extension image-path))
+         (image-mime-type (emage--image-extension-to-image-mime-type extension)))
+    (cond
+     ((string= system-type "darwin")
+      (call-process-shell-command "convert" nil nil nil nil (concat "\"" image-path "\" -resize  \"50%\"" ) (concat "\"" image-path "\"" )))
+     ((string= system-type "gnu/linux")
+      (call-process-shell-command (concat "xclip -selection clipboard -target image/" image-mime-type "-o > " image-path)))
+     ((string= system-type "windows-nt")
+      (shell-command (concat "powershell -command \"Add-Type -AssemblyName System.Windows.Forms;if ($([System.Windows.Forms.Clipboard]::ContainsImage())) {$image = [System.Windows.Forms.Clipboard]::GetImage();[System.Drawing.Bitmap]$image.Save('" image-path "',[System.Drawing.Imaging.ImageFormat]::" image-mime-type "); Write-Output 'clipboard content saved as file'} else {Write-Output 'clipboard does not contain image data'}\""))))))
+
+(defun emage--image-extension-to-image-mime-type (image-extension)
+  "Convert IMAGE-EXTENSION to its corresponding MIME type.
+If the extension is not found, return nil."
+  (let ((image-mime-types
+         (make-hash-table :test 'equal)))
+    (puthash "jpg"  "jpeg" image-mime-types)
+    (puthash "jpeg" "jpeg" image-mime-types)
+    (puthash "png"  "png"  image-mime-types)
+    (puthash "tiff" "tiff" image-mime-types)
+    (puthash "bmp"  "bmp"  image-mime-types)
+    (puthash "webp" "webp" image-mime-types)
+
+    ;; Attempt to get the mime type for the given extension
+    (let ((mime-type (gethash image-extension image-mime-types)))
+      (if mime-type
+          mime-type
+        (error "Unsupported image extension: %s" image-extension)))))
 
 
 (defun emage-yank-image-at-point-to-clipboard ()
